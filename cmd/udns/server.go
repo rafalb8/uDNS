@@ -6,10 +6,12 @@ import (
 
 // Start the server
 type ServerCmd struct {
-	Port string `arg:"" help:"DNS server port" default:"53"`
+	Config string `help:"Path to config dir"`
+
+	Port     string `arg:"" help:"DNS server port" default:"53"`
 	HttpPort string `arg:"" help:"HTTP server port" default:"8367"`
 }
 
 func (s *ServerCmd) Run() error {
-	return server.Start(s.Port, s.HttpPort)
+	return server.Start(s.Port, s.HttpPort, s.Config)
 }

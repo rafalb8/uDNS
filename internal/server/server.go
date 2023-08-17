@@ -18,14 +18,17 @@ var (
 	mu          sync.Mutex
 )
 
-func Start(port, httpPort string) error {
-	os.MkdirAll(internal.ConfigPath, os.ModePerm)
+func Start(port, httpPort, path string) error {
+	if path == "" {
+		path = internal.ConfigPath
+	}
+	os.MkdirAll(path, os.ModePerm)
 
 	// Load hosts
-	refresh()
+	refresh(path)
 
 	// track changes
-	close := internal.Track(internal.ConfigPath, refresh)
+	close := internal.Track(path, func() { refresh(path) })
 	defer close()
 
 	// Start http server
@@ -66,7 +69,7 @@ func dnsRequest(w dns.ResponseWriter, r *dns.Msg) {
 }
 
 // Refresh hosts
-func refresh() {
+func refresh(dir string) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -74,7 +77,7 @@ func refresh() {
 		"udns.local.": "127.0.0.1",
 	}
 
-	content, err := os.ReadFile(path.Join(internal.ConfigPath, "hosts"))
+	content, err := os.ReadFile(path.Join(dir, "hosts"))
 	if err != nil {
 		fmt.Println(err)
 		return

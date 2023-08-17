@@ -24,3 +24,16 @@ var ConfigPath = func() string {
 	}
 	panic("User Home not found")
 }()
+
+const ServiceTmpl = `
+[Unit]
+Description=uDNS service
+After=network.target
+
+[Service]
+ExecStart=%s server --config %s
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target`
