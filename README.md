@@ -4,7 +4,7 @@ Small DNS server
 # Installation
 To install run:
 ```bash
-curl -sfL https://raw.githubusercontent.com/rafalb8/udns/main/install.sh | sh
+curl -sfL https://raw.githubusercontent.com/rafalb8/uDNS/main/install.sh | sh
 sudo uDNS up
 ```
 
