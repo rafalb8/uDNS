@@ -18,17 +18,26 @@ var (
 	mu          sync.Mutex
 )
 
-func Start(port, httpPort, path string) error {
-	if path == "" {
-		path = internal.ConfigPath
+func Start(port, httpPort, dir string) error {
+	if dir == "" {
+		dir = internal.ConfigPath
 	}
-	os.MkdirAll(path, os.ModePerm)
+	os.MkdirAll(dir, os.ModePerm)
+
+	// Check if file exists, if not create it
+	file := path.Join(dir, "hosts")
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		_, err = os.Create(file)
+		if err != nil {
+			return err
+		}
+	}
 
 	// Load hosts
-	refresh(path)
+	refresh(dir)
 
 	// track changes
-	close := internal.Track(path, func() { refresh(path) })
+	close := internal.Track(dir, func() { refresh(dir) })
 	defer close()
 
 	// Start http server
