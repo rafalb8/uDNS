@@ -6,4 +6,5 @@ URL=$(curl -s https://api.github.com/repos/rafalb8/udns/releases/latest \
 
 mkdir -p /tmp/udns
 curl -sfL ${URL} | tar xvz -C /tmp/udns
-sudo cp /tmp/udns/udns /bin/udns
+sudo cp /tmp/udns/uDNS /bin/uDNS
+rm -rf /tmp/udns
