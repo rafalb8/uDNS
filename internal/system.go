@@ -7,13 +7,28 @@ import (
 	"strings"
 )
 
+func RemoveService() {
+	err := exec.Command("systemctl", "disable", "udns.service").Run()
+	if err != nil {
+		panic(err)
+	}
+	err = os.Remove(ServicePath)
+	if err != nil {
+		panic(err)
+	}
+	err = exec.Command("systemctl", "daemon-reload").Run()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func InstallService(path string) {
 	executablePath, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
 
-	unit, err := os.OpenFile("/usr/lib/systemd/system/udns.service", os.O_CREATE|os.O_WRONLY, 0644)
+	unit, err := os.OpenFile(ServicePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -32,6 +47,13 @@ func InstallService(path string) {
 
 func StartService() {
 	err := exec.Command("systemctl", "start", "udns.service").Run()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func StopService() {
+	err := exec.Command("systemctl", "stop", "udns.service").Run()
 	if err != nil {
 		panic(err)
 	}
@@ -90,5 +112,27 @@ func AppendResolv() {
 
 	if i < 1 {
 		output.WriteString("nameserver 127.0.0.1\n")
+	}
+}
+
+func CleanResolv() {
+	// remove nameserver 127.0.0.1 from resolv.conf
+	resolv, err := os.ReadFile("/etc/resolv.conf")
+	if err != nil {
+		panic(err)
+	}
+
+	output, err := os.OpenFile("/etc/resolv.conf", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer output.Close()
+
+	for _, line := range strings.Split(string(resolv), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "nameserver 127.0.0.1" {
+			continue
+		}
+		output.WriteString(line + "\n")
 	}
 }

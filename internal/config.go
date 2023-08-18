@@ -25,6 +25,7 @@ var ConfigPath = func() string {
 	panic("User Home not found")
 }()
 
+const ServicePath = "/usr/lib/systemd/system/udns.service"
 const ServiceTmpl = `
 [Unit]
 Description=uDNS service
