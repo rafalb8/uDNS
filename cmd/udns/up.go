@@ -9,6 +9,7 @@ import (
 
 // Creates systemd unit file and starts the service
 type UpCmd struct {
+	Enable bool `help:"Enable systemd unit on boot" default:"false"`
 }
 
 func (u *UpCmd) Run() error {
@@ -18,7 +19,9 @@ func (u *UpCmd) Run() error {
 	}
 
 	internal.InstallService(internal.ConfigPath)
-	internal.StartService()
-	internal.AppendResolv()
+	internal.ServiceControl(internal.StartService)
+	if u.Enable {
+		internal.ServiceControl(internal.EnableService)
+	}
 	return nil
 }

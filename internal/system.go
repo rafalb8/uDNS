@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+type ServiceAction string
+
+const (
+	StartService   ServiceAction = "start"
+	StopService    ServiceAction = "stop"
+	EnableService  ServiceAction = "enable"
+	DisableService ServiceAction = "disable"
+)
+
 func RemoveService() {
 	err := exec.Command("systemctl", "disable", "udns.service").Run()
 	if err != nil {
@@ -45,15 +54,8 @@ func InstallService(path string) {
 	}
 }
 
-func StartService() {
-	err := exec.Command("systemctl", "start", "udns.service").Run()
-	if err != nil {
-		panic(err)
-	}
-}
-
-func StopService() {
-	err := exec.Command("systemctl", "stop", "udns.service").Run()
+func ServiceControl(action ServiceAction) {
+	err := exec.Command("systemctl", string(action), "udns.service").Run()
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +66,7 @@ type resLine struct {
 	Comment bool
 }
 
-func AppendResolv() {
+func ModifyResolv() {
 	// Add 127.0.0.1 to resolv.conf
 	resolv, err := os.ReadFile("/etc/resolv.conf")
 	if err != nil {

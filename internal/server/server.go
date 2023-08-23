@@ -18,7 +18,7 @@ var (
 	mu          sync.Mutex
 )
 
-func Start(port, httpPort, dir string) error {
+func Start(port, httpPort, dir string, noResolv bool) error {
 	if dir == "" {
 		dir = internal.ConfigPath
 	}
@@ -31,6 +31,10 @@ func Start(port, httpPort, dir string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	if !noResolv {
+		internal.ModifyResolv()
 	}
 
 	// Load hosts
@@ -60,11 +64,11 @@ func dnsRequest(w dns.ResponseWriter, r *dns.Msg) {
 		for _, q := range m.Question {
 			switch q.Qtype {
 			case dns.TypeA:
-				fmt.Printf("Query for %s\n", q.Name)
 				ip, ok := hostMapping[q.Name]
 				if !ok {
 					continue
 				}
+				fmt.Printf("Query for %s\n", q.Name)
 
 				rr, err := dns.NewRR(fmt.Sprintf("%s A %s", q.Name, ip))
 				if err == nil {

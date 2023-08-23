@@ -8,7 +8,7 @@ type DownCmd struct {
 }
 
 func (d *DownCmd) Run() error {
-	internal.StopService()
+	internal.ServiceControl(internal.StopService)
 	if d.Uninstall {
 		internal.RemoveService()
 	}
